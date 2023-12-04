@@ -1,28 +1,24 @@
 #!/usr/bin/env python3
 import os
-
 import aws_cdk as cdk
 
-from takehome.takehome_stack import TakehomeStack
+from src.stacks.ssm_store.ssm_add import SSMPlatformParameter
+from src.stacks.eks_cluster.eks import EksCluster
+from src.stacks.eks_charts.charts import EksHelmCharts
 
+stage="development"
 
 app = cdk.App()
-TakehomeStack(app, "TakehomeStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+platform_parameter = SSMPlatformParameter(app, "SSMPlatformParameterStack", ssm_parameter=stage)
+eks_platform_cluster = EksCluster(app, "EksClusterStack", stage=stage)
+eks_helm_charts = EksHelmCharts(app, "EksHelmChartsStack", eks_cluster=eks_platform_cluster.cluster)
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+# Tags
+cdk.Tags.of(eks_platform_cluster).add("Stack", "EksClusterStack")
+cdk.Tags.of(platform_parameter).add("Stack", "SSMPlatformParameterStack")
+cdk.Tags.of(eks_helm_charts).add("Stack", "EksHelmChartsStack")
 
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
-
-    #env=cdk.Environment(account='123456789012', region='us-east-1'),
-
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
+eks_helm_charts.add_dependency(platform_parameter)
 
 app.synth()

@@ -12,6 +12,7 @@ directory.  To create the virtualenv it assumes that there is a `python3`
 package. If for any reason the automatic creation of the virtualenv fails,
 you can create the virtualenv manually.
 
+### Prerequisites
 To manually create a virtualenv on MacOS and Linux:
 
 ```
@@ -40,7 +41,25 @@ $ pip install -r requirements.txt
 At this point you can now synthesize the CloudFormation template for this code.
 
 ```
-$ cdk synth
+$ cdk synth --all
+```
+
+### Deployment
+```
+$ cdk deploy --all
+```
+
+
+### Testing
+Install Testing Libraries
+
+```
+$ pip install -r requirements-dev.txt
+```
+
+Run the Python Test
+```
+$ pytest
 ```
 
 To add additional dependencies, for example other CDK libraries, just add
